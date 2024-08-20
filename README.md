@@ -3,6 +3,4 @@ python-facial-scan
 
 
 
-pip install opencv-python
-pip install numpy
-pip install imutils
+pip install opencv-python numpy imutils
