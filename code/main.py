@@ -7,12 +7,23 @@ from dotenv import load_dotenv, set_key
 # Cargar variables del archivo .env
 load_dotenv()
 
-def run_script(script_name):
+def run_script(script_name, callback=None):
     try:
         # Ejecutar el script
-        subprocess.run(['python', script_name], check=True)
+        result = subprocess.run(['python', script_name], check=True)
+        # Llamar al callback si se proporciona
+        if callback:
+            callback()
     except subprocess.CalledProcessError as e:
         messagebox.showerror("Error", f"Error al ejecutar {script_name}: {e}")
+
+def run_face_scanner_and_trainer():
+    def on_scanner_complete():
+        # Ejecutar el script del entrenador después de que el escáner termine
+        run_script('entrenandoRF.py')
+    
+    # Ejecutar el script del escáner de rostros
+    run_script('capturandoRostros.py', callback=on_scanner_complete)
 
 def update_person_name():
     new_name = person_name_entry.get()
@@ -44,14 +55,14 @@ def create_main_window():
     btn_update_name.pack(side=tk.LEFT, padx=5)
 
     # Crear los botones para ejecutar los scripts
-    btn_captura = tk.Button(window, text="Capturar Rostros", command=lambda: run_script('capturandoRostros.py'))
-    btn_entrenador = tk.Button(window, text="Entrenador RF", command=lambda: run_script('entrenandoRF.py'))
+    btn_scan_and_train = tk.Button(window, text="Escanear y Entrenar", command=run_face_scanner_and_trainer)
     btn_reconocimiento = tk.Button(window, text="Reconocimiento Facial", command=lambda: run_script('reconocimientofacial.py'))
 
+
     # Agregar los botones a la ventana
-    btn_captura.pack(pady=10)
-    btn_entrenador.pack(pady=10)
+
     btn_reconocimiento.pack(pady=10)
+    btn_scan_and_train.pack(pady=10)  # Agregar el nuevo botón a la ventana
 
     # Cargar el nombre actual de la persona en el campo de entrada
     current_name = os.getenv('PERSON_NAME', '')
